@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -6,7 +7,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return  const MaterialApp(
@@ -18,17 +18,33 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
 
-  void _incrementCounter() {
+class _MyHomePageState extends State<MyHomePage> {
+  late SharedPreferences pref;
+  int  counter = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    setParameters();
+  }
+  void setParameters() async {
+    pref = await SharedPreferences.getInstance();
+    if(pref.containsKey('counter')){
+      counter =  pref.getInt("counter")!;
+    }else{
+      counter = 0;
+      pref.setInt('counter', 0);
+    }
+  }
+  void _incrementCounter()  {
     setState(() {
-      _counter++;
+      counter++;
+      pref.setInt('counter', counter);
     });
   }
 
@@ -47,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
               'Cups:',
             ),
             Text(
-              '$_counter',
+              '$counter',
               style: Theme.of(context).textTheme.headline4,
             ),
             const Image(
