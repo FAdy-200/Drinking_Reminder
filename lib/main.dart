@@ -25,14 +25,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late SharedPreferences pref;
-  int  counter = 0;
+  var _counter;
 
   @override
   void initState() {
     super.initState();
-    setParameters();
+    setParameters().then((value){
+      setState((){
+        _counter = value;
+      });
+    });
   }
-  void setParameters() async {
+  Future<int> setParameters() async {
+    int counter;
     pref = await SharedPreferences.getInstance();
     if(pref.containsKey('counter')){
       counter =  pref.getInt("counter")!;
@@ -40,23 +45,24 @@ class _MyHomePageState extends State<MyHomePage> {
       counter = 0;
       pref.setInt('counter', 0);
     }
+    return counter;
   }
   void _incrementCounter()  {
     setState(() {
-      counter++;
-      pref.setInt('counter', counter);
+      _counter++;
+      pref.setInt('counter', _counter);
     });
   }
   void _resetCounter(){
     setState(() {
-      counter = 0;
+      _counter = 0;
       pref.setInt('counter', 0);
     });
   }
   void _removeOne(){
     setState(() {
-      counter--;
-      pref.setInt('counter', counter);
+      _counter = (_counter >0)?_counter-1:0;
+      pref.setInt('counter', _counter);
     });
   }
   @override
@@ -84,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
               'Cups:',
             ),
             Text(
-              '$counter',
+              '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
             const Image(
