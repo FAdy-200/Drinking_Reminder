@@ -47,13 +47,34 @@ class _MyHomePageState extends State<MyHomePage> {
       pref.setInt('counter', counter);
     });
   }
-
+  void _resetCounter(){
+    setState(() {
+      counter = 0;
+      pref.setInt('counter', 0);
+    });
+  }
+  void _removeOne(){
+    setState(() {
+      counter--;
+      pref.setInt('counter', counter);
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Drinking Reminder"),
         backgroundColor: const Color(0xffff748c),
+        actions: [
+          IconButton(
+              onPressed: _resetCounter,
+              icon: const Icon(Icons.restart_alt)
+          ),
+          IconButton(
+              onPressed: _removeOne,
+              icon: const Icon(Icons.exposure_minus_1)
+          )
+        ],
       ),
       body: Center(
         child: Column(
