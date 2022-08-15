@@ -1,7 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'notification_handler.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  AwesomeNotifications().initialize(
+      null,
+      [
+        NotificationChannel(
+          channelGroupKey: 'basic_key',
+          channelKey: 'basic',
+          channelName: 'Basic notifications',
+          channelDescription: 'Notification channel for drinking reminders',
+          channelShowBadge: true,
+          importance: NotificationImportance.High,
+          enableVibration: true,
+        ),
+      ],
+      debug: true
+  );
   runApp(const MyApp());
 }
 
@@ -30,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    requestPermission();
     setParameters().then((value){
       setState((){
         _counter = value;
@@ -48,10 +67,11 @@ class _MyHomePageState extends State<MyHomePage> {
     return counter;
   }
   void _incrementCounter()  {
-    setState(() {
-      _counter++;
-      pref.setInt('counter', _counter);
-    });
+    showNotification(_counter);
+    // setState(() {
+    //   _counter++;
+    //   pref.setInt('counter', _counter);
+    // });
   }
   void _resetCounter(){
     setState(() {
@@ -65,6 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
       pref.setInt('counter', _counter);
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
