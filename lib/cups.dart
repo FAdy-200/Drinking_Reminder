@@ -39,8 +39,3 @@ class Cups{
 
 }
 
-void notiIncrement() async {
-  SharedPreferences pref = await SharedPreferences.getInstance();
-  int counter = pref.getInt('counter')!;
-  pref.setInt('counter', ++counter);
-}

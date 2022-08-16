@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'notification_handler.dart';
 import 'cups.dart';
-
-
-
+Cups handler = Cups();
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   initializeNotification();
+  await handler.init();
   runApp(const MaterialApp(
     title: 'Drinking Reminder',
     home: MyHomePage(),
@@ -24,7 +23,6 @@ class MyHomePage extends StatefulWidget {
 
 
 class _MyHomePageState extends State<MyHomePage> {
-  Cups handler = Cups();
   var _counter;
 
   @override
@@ -36,12 +34,11 @@ class _MyHomePageState extends State<MyHomePage> {
       onActionReceivedMethod: onActionReceivedMethod
     );
   }
-  static Future <int> onActionReceivedMethod(ReceivedAction receivedAction) async {
+  static Future <void> onActionReceivedMethod(ReceivedAction receivedAction) async {
     if(receivedAction.buttonKeyPressed == "drink"){
-      notiIncrement();
-      return 0;
+      await handler.init();
+      handler.incrementCounter();
     }
-    return 0;
   }
 
   @override
