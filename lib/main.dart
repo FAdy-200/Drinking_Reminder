@@ -1,38 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'notification_handler.dart';
+import 'cups.dart';
 
-void main() {
+
+
+
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  AwesomeNotifications().initialize(
-      null,
-      [
-        NotificationChannel(
-          channelGroupKey: 'basic_key',
-          channelKey: 'basic',
-          channelName: 'Basic notifications',
-          channelDescription: 'Notification channel for drinking reminders',
-          channelShowBadge: true,
-          importance: NotificationImportance.High,
-          enableVibration: true,
-        ),
-      ],
-      debug: true
-  );
-  runApp(const MyApp());
+  initializeNotification();
+  runApp(const MaterialApp(
+    title: 'Drinking Reminder',
+    home: MyHomePage(),
+  ));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return  const MaterialApp(
-      title: 'Drinking Reminder',
-      home: MyHomePage(),
-    );
-  }
-}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -42,48 +24,24 @@ class MyHomePage extends StatefulWidget {
 
 
 class _MyHomePageState extends State<MyHomePage> {
-  late SharedPreferences pref;
+  Cups handler = Cups();
   var _counter;
 
   @override
   void initState() {
     super.initState();
     requestPermission();
-    setParameters().then((value){
-      setState((){
-        _counter = value;
-      });
-    });
+    _counter = handler.getCounter();
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: onActionReceivedMethod
+    );
   }
-  Future<int> setParameters() async {
-    int counter;
-    pref = await SharedPreferences.getInstance();
-    if(pref.containsKey('counter')){
-      counter =  pref.getInt("counter")!;
-    }else{
-      counter = 0;
-      pref.setInt('counter', 0);
+  static Future <int> onActionReceivedMethod(ReceivedAction receivedAction) async {
+    if(receivedAction.buttonKeyPressed == "drink"){
+      notiIncrement();
+      return 0;
     }
-    return counter;
-  }
-  void _incrementCounter()  {
-    showNotification(_counter);
-    // setState(() {
-    //   _counter++;
-    //   pref.setInt('counter', _counter);
-    // });
-  }
-  void _resetCounter(){
-    setState(() {
-      _counter = 0;
-      pref.setInt('counter', 0);
-    });
-  }
-  void _removeOne(){
-    setState(() {
-      _counter = (_counter >0)?_counter-1:0;
-      pref.setInt('counter', _counter);
-    });
+    return 0;
   }
 
   @override
@@ -94,11 +52,20 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: const Color(0xffff748c),
         actions: [
           IconButton(
-              onPressed: _resetCounter,
+              onPressed: (){
+                handler.resetCounter();
+                setState(() {
+                  _counter = 0;
+                });
+              },
               icon: const Icon(Icons.restart_alt)
           ),
           IconButton(
-              onPressed: _removeOne,
+              onPressed: (){
+                setState(() {
+                  _counter = handler.removeOne();
+                });
+              },
               icon: const Icon(Icons.exposure_minus_1)
           )
         ],
@@ -117,11 +84,24 @@ class _MyHomePageState extends State<MyHomePage> {
             const Image(
                 image: AssetImage('assets/icons/cup.png')
             ),
+            // TESTING NOTIFICATION MUST BE REMOVED LATER
+            ElevatedButton(
+                onPressed: () {
+                    print(handler.getCounter());
+                    showNotification(_counter);
+                  },
+                child: const Text("Show Notification")
+            )
+            // ---------------------
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () {
+            setState(() {
+              _counter = handler.incrementCounter();
+            });
+          },
         tooltip: 'Increment',
         backgroundColor: const Color(0xffff748c),
         child: const Icon(Icons.add),
