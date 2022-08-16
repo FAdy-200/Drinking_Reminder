@@ -38,7 +38,7 @@ dependencies:
   path: ^1.8.0
   fluttertoast: ^8.0.9
   shared_preferences: ^2.0.15
-  awesome_notifications: any
+  awesome_notifications: ^0.7.0-beta.5
 
 dev_dependencies:
   flutter_test:
